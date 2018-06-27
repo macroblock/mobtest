@@ -10,28 +10,29 @@ import (
 
 // TBuffer -
 type TBuffer struct {
-	buffer     uint32
-	targetHint uint32
-	usageHint  uint32
+	buffer    uint32
+	target    uint32
+	usageHint uint32
 }
 
 // NewBuffer -
 func NewBuffer() *TBuffer {
-	ret := &TBuffer{targetHint: gl.ARRAY_BUFFER, usageHint: gl.STATIC_DRAW}
+	ret := &TBuffer{target: gl.ARRAY_BUFFER, usageHint: gl.STATIC_DRAW}
 	gl.GenBuffers(1, &ret.buffer)
 	return ret
 }
 
 // Bind -
-func (o *TBuffer) Bind(targetHint ...uint32) {
-	if len(targetHint) > 0 {
-		o.targetHint = targetHint[0]
+func (o *TBuffer) Bind(target ...uint32) {
+	if len(target) > 0 {
+		o.target = target[0]
 	}
-	gl.BindBuffer(o.targetHint, o.buffer)
+	fmt.Println("bound to target", o.target)
+	gl.BindBuffer(o.target, o.buffer)
 }
 
 // Data -
-func (o *TBuffer) Data(d0 []float32, data interface{}, usageHint ...uint32) {
+func (o *TBuffer) Data(data interface{}, usageHint ...uint32) {
 	if len(usageHint) > 0 {
 		o.usageHint = usageHint[0]
 	}
@@ -47,7 +48,7 @@ func (o *TBuffer) Data(d0 []float32, data interface{}, usageHint ...uint32) {
 	ptr := unsafe.Pointer(val.Pointer())
 	// fmt.Println(sliceLen, " ", typeSize, " ", ptr)
 	gl.BufferData(
-		o.targetHint,
+		o.target,
 		int(sliceLen)*int(typeSize),
 		ptr,
 		o.usageHint)

@@ -3,11 +3,11 @@ package main
 import (
 	"C"
 	"fmt"
+	"unsafe"
 
 	gl "github.com/go-gl/gl/v3.1/gles2"
 	"github.com/veandco/go-sdl2/sdl"
 )
-import "unsafe"
 
 var (
 	xpos, ypos float32
@@ -105,8 +105,10 @@ func onStart(ctx *TContext) {
 
 	dataBuf := NewBuffer()
 	dataBuf.Bind()
-	dataBuf.Data(vertices, vertices)
+	dataBuf.Data(vertices)
 	// vbo(vertices)
+	gl.EnableVertexAttribArray(0)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, gl.PtrOffset(0))
 
 	// var dataBuf uint32
 	// gl.GenBuffers(1, &dataBuf)
@@ -118,12 +120,10 @@ func onStart(ctx *TContext) {
 	// 	gl.STATIC_DRAW)
 
 	ctx.elements = elements
-	// elemBuf := NewBuffer()
-	// elemBuf.Bind(gl.ELEMENT_ARRAY_BUFFER)
-	// elemBuf.Data(elements)
+	elemBuf := NewBuffer()
+	elemBuf.Bind(gl.ELEMENT_ARRAY_BUFFER)
+	elemBuf.Data(elements)
 
-	gl.EnableVertexAttribArray(0)
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, gl.PtrOffset(0))
 }
 
 func onStop(ctx *TContext) {
@@ -135,7 +135,7 @@ func onDraw(ctx *TContext, w, h int32) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	// gl.DrawArrays(gl.TRIANGLES, 0, 3)
-	gl.DrawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, unsafe.Pointer(&ctx.elements[0]))
+	gl.DrawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, unsafe.Pointer(uintptr(0))) //gl.Ptr(&ctx.elements[0]))
 	// gl.BindVertexArray(ctx.vao)
 	// gl.DrawArrays(gl.TRIANGLES, 0, 3)
 }
