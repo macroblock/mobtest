@@ -10,6 +10,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 
 	gl "github.com/go-gl/gl/v3.1/gles2"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 // TContext -
@@ -18,6 +19,9 @@ type TContext struct {
 	context  sdl.GLContext
 	elements []uint32
 	vao      uint32
+	model    mgl32.Mat4
+	view     mgl32.Mat4
+	proj     mgl32.Mat4
 }
 
 func logf(format string, args ...interface{}) {
@@ -158,4 +162,61 @@ func newProgram(vSrc, fSrc string) (uint32, error) {
 	gl.DeleteShader(fShader)
 
 	return prog, nil
+}
+
+func makeCube(size float32) (vert *TBuffer, color *TBuffer, elem *TBuffer, arr []uint32) {
+	l := size / 2.0
+	v := float32(1.0)
+	z := float32(0.0)
+	vertices := []float32{
+		// 0.01, 0.5, 0.0,
+		// -0.5, -0.5, 0.0,
+		// 0.5, -0.5, 0.0,
+		-l, l * 1.0, z,
+		l, l, z,
+		l, -l, z,
+		-l, -l, z,
+	}
+	colors := []float32{
+		// 1.0, 0.0, 0.0, 1.0,
+		// 0.0, 1.0, 0.0, 1.0,
+		// 0.0, 0.0, 1.0, 1.0,
+		z, v, v, v,
+		v, v, v, v,
+		v, z, v, v,
+		z, z, v, v,
+		z, v, z, v,
+		v, v, z, v,
+		v, z, z, v,
+		z, z, z, v,
+	}
+	elems := []uint32{
+		// 2, 1, 0,
+		0, 3, 1,
+		3, 2, 1,
+		5, 1, 2,
+		5, 2, 6,
+		5, 6, 7,
+		5, 7, 4,
+		5, 4, 0,
+		5, 0, 1,
+		3, 2, 1,
+		3, 1, 0,
+		3, 0, 4,
+		3, 4, 7,
+		3, 7, 6,
+		3, 6, 2,
+	}
+	arr = elems
+
+	vert = NewBuffer()
+	vert.Bind()
+	vert.Data(vertices)
+	color = NewBuffer()
+	color.Bind()
+	color.Data(colors)
+	elem = NewBuffer()
+	elem.Bind(gl.ELEMENT_ARRAY_BUFFER)
+	elem.Data(elems)
+	return
 }
